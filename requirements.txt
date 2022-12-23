@@ -1,0 +1,2 @@
+-e support
+pytest~=7.2.0
