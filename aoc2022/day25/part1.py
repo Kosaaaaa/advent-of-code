@@ -10,22 +10,56 @@ import support
 INPUT_TXT = os.path.join(os.path.dirname(__file__), 'input.txt')
 
 
-def compute(s: str) -> int:
-    numbers = support.parse_numbers_split(s)
-    for n in numbers:
-        pass
+def encode(n: int) -> str:
+    ret = ''
+    while n:
+        rem = n % 5
+        if rem <= 2:
+            ret += str(rem)
+        else:
+            ret += {3: '=', 4: '-'}[rem]
 
-    lines = s.splitlines()
-    for line in lines:
-        pass
-    # TODO: implement solution here!
-    return 0
+        n //= 5
+        n += rem // 3
+
+    return ret[::-1]
+
+
+def compute_value(s: str) -> int:
+    ret = 0
+    for line in s.splitlines():
+        n = 0
+        for i, c in enumerate(reversed(line)):
+            if c.isdigit():
+                n += int(c) * (5 ** i)
+            elif c == '-':
+                n -= 1 * (5 ** i)
+            elif c == '=':
+                n -= 2 * (5 ** i)
+        ret += n
+    return ret
+
+
+def compute(s: str) -> str:
+    return encode(compute_value(s))
 
 
 INPUT_S = '''\
-
+1=-0-2
+12111
+2=0=
+21
+2=01
+111
+20012
+112
+1=-1=
+1-12
+12
+1=
+122
 '''
-EXPECTED = 1
+EXPECTED = '2=-1=0'
 
 
 @pytest.mark.parametrize(
