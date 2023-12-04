@@ -24,15 +24,14 @@ WORDS_DIGITS_MAP = {
     'nine': '9',
 }
 
+PAT = re.compile(fr'(\d|{"|".join(WORDS_DIGITS_MAP)})')
+PAT_REV = re.compile(fr'(\d|{"|".join(s[::-1] for s in WORDS_DIGITS_MAP)})')
 
-def parse_words_digits(s: str) -> str:
-    found_substrings = [(w, [m.start() for m in re.finditer(w, s)]) for w
-                        in WORDS_DIGITS_MAP.keys() if re.search(w, s)]
 
-    for word, _ in sorted(found_substrings, key=lambda _x: _x[1][0]):
-        s = s.replace(word, WORDS_DIGITS_MAP[word])
-
-    return s
+def _parse_search(p: re.Pattern[str], s: str) -> str:
+    match = p.search(s)
+    assert match is not None
+    return match[0]
 
 
 def compute(s: str) -> int:
@@ -41,13 +40,10 @@ def compute(s: str) -> int:
     result = 0
 
     for line in lines:
-        if match := PATTERN_RE.search(parse_words_digits(line)):
-            first, last = match.groups()
-
-            if last is None:
-                last = first
-
-            result += int(f'{first}{last}')
+        first = _parse_search(PAT, line)
+        last = _parse_search(PAT_REV, line[::-1])[::-1]
+        digits = [WORDS_DIGITS_MAP.get(first, first), WORDS_DIGITS_MAP.get(last, last)]
+        result += int(digits[0]) * 10 + int(digits[-1])
 
     return result
 
@@ -62,24 +58,6 @@ zoneight234
 7pqrstsixteen
 '''
 EXPECTED = 281
-
-
-@pytest.mark.parametrize(
-    ('input_s', 'expected'),
-    (
-        ('two1nine', '219'),
-        ('eightwothree', '8wo3'),
-        ('abcone2threexyz', 'abc123xyz'),
-        ('xtwone3four', 'x2ne34'),
-        ('4nineeightseven2', '49872'),
-        ('zoneight234', 'z1ight234'),
-        ('onezvbhrblrkzcrsevensix96jnpxjone', '1zvbhrblrkzcr7696jnpxj1'),
-        ('nineight', '9ight'),
-        ('1nineight', '19ight'),
-    ),
-)
-def test_parse_words_digits(input_s: str, expected: str) -> None:
-    assert parse_words_digits(input_s) == expected
 
 
 @pytest.mark.parametrize(

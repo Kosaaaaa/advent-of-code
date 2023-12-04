@@ -2,15 +2,12 @@ from __future__ import annotations
 
 import argparse
 import os.path
-import re
 
 import pytest
 
 import support
 
 INPUT_TXT = os.path.join(os.path.dirname(__file__), 'input.txt')
-
-PATTERN_RE = re.compile(r'^\D*(\d)(?:.*?(\d))?\D*$')
 
 
 def compute(s: str) -> int:
@@ -19,13 +16,8 @@ def compute(s: str) -> int:
     result = 0
 
     for line in lines:
-        if match := PATTERN_RE.search(line):
-            first, last = match.groups()
-
-            if last is None:
-                last = first
-
-            result += int(f'{first}{last}')
+        digits = [c for c in line if c.isdigit()]
+        result += int(digits[0]) * 10 + int(digits[-1])
 
     return result
 
