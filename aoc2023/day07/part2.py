@@ -1,0 +1,68 @@
+from __future__ import annotations
+
+import argparse
+import os.path
+from collections import Counter
+
+import pytest
+
+import support
+
+INPUT_TXT = os.path.join(os.path.dirname(__file__), 'input.txt')
+
+
+def compute(s: str) -> int:
+    hands: list[tuple[str, int]] = [
+        (parts[0], int(parts[1]))
+        for line in s.splitlines()
+        if (parts := line.split()) and len(parts) == 2
+    ]
+
+    labels = dict(zip('J23456789TQKA', range(13)))
+
+    def calc(hand: tuple[str, int]) -> tuple[list[int], list[int]]:
+        if hand[0] == 'JJJJJ':
+            hand_type = [5]
+        else:
+            c = Counter(hand[0])
+            jokers = c.pop('J', 0)
+            hand_type = sorted(c.values(), reverse=True)
+            hand_type[0] += jokers
+        return hand_type, [labels[c] for c in hand[0]]
+
+    return sum(bid * (i + 1) for i, (_, bid) in enumerate(sorted(hands, key=calc)))
+
+
+INPUT_S = '''\
+32T3K 765
+T55J5 684
+KK677 28
+KTJJT 220
+QQQJA 483
+'''
+EXPECTED = 5905
+
+
+@pytest.mark.parametrize(
+    ('input_s', 'expected'),
+    (
+        (INPUT_S, EXPECTED),
+    ),
+)
+def test(input_s: str, expected: int) -> None:
+    assert compute(input_s) == expected
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('data_file', nargs='?', default=INPUT_TXT)
+    args = parser.parse_args()
+
+    with open(args.data_file) as f, support.timing():
+        print(compute(f.read()))
+
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
