@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import contextlib
 import enum
+import functools
+import math
 import os.path
 import re
 import sys
@@ -10,9 +12,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Generator
-from typing import Iterable
-from typing import NamedTuple
+from typing import Any, Generator, Iterable, NamedTuple
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -252,3 +252,52 @@ class Direction4(enum.Enum):
 
     def apply(self, x: int, y: int, *, n: int = 1) -> tuple[int, int]:
         return self.x * n + x, self.y * n + y
+
+
+@functools.total_ordering
+class Point:
+    """Simple 2-dimensional point."""
+
+    def __init__(self, x: int | float, y: int | float) -> None:
+        self.x = x
+        self.y = y
+
+    def __add__(self, other: Point) -> Point:
+        return Point(self.x + other.x, self.y + other.y)
+
+    def __invert__(self) -> Point:
+        return Point(-self.y, -self.x)
+
+    def __neg__(self) -> Point:
+        return Point(-self.x, -self.y)
+
+    def __hash__(self) -> int:
+        return hash(tuple((self.x, self.y)))
+
+    def __sub__(self, other: Point) -> Point:
+        return Point(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, n: int | float) -> Point:
+        return Point(self.x * n, self.y * n)
+
+    def __div__(self, n: int | float) -> Point:
+        return Point(self.x / n, self.y / n)
+
+    def __eq__(self, other: Any) -> bool:
+        return self.x == other.x and self.y == other.y
+
+    def __ne__(self, other: Any) -> bool:
+        return not self == other
+
+    def __lt__(self, other: Point) -> bool:
+        return self.length < other.length
+
+    def __str__(self) -> str:
+        return f'({self.x}, {self.y})'
+
+    def __repr__(self) -> str:
+        return f'Point({self.x}, {self.y})'
+
+    @property
+    def length(self) -> float:
+        return math.sqrt(self.x ** 2 + self.y ** 2)
