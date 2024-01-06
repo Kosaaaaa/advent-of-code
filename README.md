@@ -28,3 +28,4 @@ Inspired by: [@anthonywritescode](https://github.com/anthonywritescode)
 ## Hall of Fame
 
 ![aoc2022](./images/aoc2022.png)
+![aoc2023](./images/aoc2023.png)
