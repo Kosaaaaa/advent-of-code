@@ -284,6 +284,8 @@ class Point:
         return Point(self.x / n, self.y / n)
 
     def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Point):
+            return False
         return self.x == other.x and self.y == other.y
 
     def __ne__(self, other: Any) -> bool:
