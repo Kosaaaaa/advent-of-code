@@ -1,2 +1,3 @@
 -e support
-pytest~=7.2.0
+pytest~=7.4.4
+z3-solver~=4.12.4.0
